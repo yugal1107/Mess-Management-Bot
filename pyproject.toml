@@ -1,0 +1,13 @@
+[project]
+name = "mess-management"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "apscheduler>=3.11.0",
+    "pandas>=2.2.3",
+    "python-dotenv>=1.1.0",
+    "python-telegram-bot>=22.0",
+    "pytz>=2025.2",
+]
