@@ -3,7 +3,22 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 import os
 from dotenv import load_dotenv
 from database import init_database
-from handlers import start, mobile_handler, offmess, off_date_handler, off_meal_handler, canceloff, cancel_off_handler, add_user_command, help_command
+from handlers import (
+    # Conversation states
+    MOBILE, OFF_DATE, OFF_MEAL, CANCEL_OFF,
+    
+    # User handlers
+    start, mobile_handler, help_command, status_command,
+    
+    # Off meal handlers
+    offmess, off_date_handler, off_meal_handler, 
+    canceloff, cancel_off_handler,
+    
+    # Admin handlers
+    add_user_command, list_users_command, view_offs_command, 
+    update_payment_command, broadcast_command, show_database_command,
+    update_credits_command, convert_all_credits_command
+)
 
 # Load environment variables
 load_dotenv()
@@ -21,7 +36,7 @@ def main():
     start_conv = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            1: [MessageHandler(filters.TEXT & ~filters.COMMAND, mobile_handler)],  # MOBILE
+            MOBILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, mobile_handler)],
         },
         fallbacks=[],
     )
@@ -30,8 +45,8 @@ def main():
     offmess_conv = ConversationHandler(
         entry_points=[CommandHandler('offmess', offmess)],
         states={
-            2: [MessageHandler(filters.TEXT & ~filters.COMMAND, off_date_handler)],  # OFF_DATE
-            3: [CallbackQueryHandler(off_meal_handler)],  # OFF_MEAL
+            OFF_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, off_date_handler)],
+            OFF_MEAL: [CallbackQueryHandler(off_meal_handler)],
         },
         fallbacks=[],
         per_message=False,
@@ -41,7 +56,7 @@ def main():
     canceloff_conv = ConversationHandler(
         entry_points=[CommandHandler('canceloff', canceloff)],
         states={
-            4: [CallbackQueryHandler(cancel_off_handler)],  # CANCEL_OFF
+            CANCEL_OFF: [CallbackQueryHandler(cancel_off_handler)],
         },
         fallbacks=[],
         per_message=False,
@@ -53,6 +68,16 @@ def main():
     application.add_handler(canceloff_conv)
     application.add_handler(CommandHandler('adduser', add_user_command))
     application.add_handler(CommandHandler('help', help_command))
+    application.add_handler(CommandHandler('status', status_command))
+    
+    # Register admin handlers
+    application.add_handler(CommandHandler('listusers', list_users_command))
+    application.add_handler(CommandHandler('viewoffs', view_offs_command))
+    application.add_handler(CommandHandler('updatepayment', update_payment_command))
+    application.add_handler(CommandHandler('updatecredits', update_credits_command))
+    application.add_handler(CommandHandler('broadcast', broadcast_command))
+    application.add_handler(CommandHandler('showdb', show_database_command))
+    application.add_handler(CommandHandler('convertallcredits', convert_all_credits_command))
     
     print("Bot is running...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
